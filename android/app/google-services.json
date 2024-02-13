@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "410581225858",
+    "firebase_url": "https://sellerplus-15e34-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "sellerplus-15e34",
+    "storage_bucket": "sellerplus-15e34.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:410581225858:android:dc0d6de4a7a35930d3bf9b",
+        "android_client_info": {
+          "package_name": "com.example.sellerplus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJCyIf9UlBHBXZ4XTcdsTd2bxY7nPWey0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
