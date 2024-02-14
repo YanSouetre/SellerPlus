@@ -3,12 +3,17 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
 import 'package:sellerplus/src/home.dart';
+
+import 'package:sellerplus/src/profile.dart';
+
 
 import 'app_state.dart';
 import 'component/login.dart';
 import 'home_page.dart';
 import 'component/register.dart';
+import 'src/home.dart';
 
 
 void main() {
@@ -27,7 +32,7 @@ final _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const Home(loggedIn: false),
+      builder: (context, state) => const HomePage(),
       routes: [
         GoRoute(
           path: 'login',
@@ -60,14 +65,7 @@ final _router = GoRouter(
         GoRoute(
           path: 'profile',
           builder: (context, state) {
-            return ProfileScreen(
-              providers: const [],
-              actions: [
-                SignedOutAction((context) {
-                  context.pushReplacement('/');
-                }),
-              ],
-            );
+            return ProfilePage();
           },
         ),
       ],

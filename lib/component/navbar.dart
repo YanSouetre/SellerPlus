@@ -64,21 +64,8 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
             icon: const Icon(Icons.person_pin_sharp, color: Colors.white),
             tooltip: 'Go to profile',
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute<void>(
-                builder: (BuildContext context) {
-                  return Scaffold(
-                    appBar: AppBar(
-                      title: const Text('Next page'),
-                    ),
-                    body: const Center(
-                      child: Text(
-                        'This is the next page',
-                        style: TextStyle(fontSize: 24),
-                      ),
-                    ),
-                  );
-                },
-              ));
+              context.pushReplacement('/profile');
+
             },
           ),
         ],
