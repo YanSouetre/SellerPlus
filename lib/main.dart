@@ -3,6 +3,7 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:sellerplus/src/home.dart';
 
 import 'app_state.dart';
 import 'component/login.dart';
@@ -26,7 +27,7 @@ final _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const HomePage(),
+      builder: (context, state) => const Home(loggedIn: false),
       routes: [
         GoRoute(
           path: 'login',
