@@ -36,14 +36,14 @@ class ApplicationState extends ChangeNotifier {
             .snapshots()
             .listen((snapshot) {
           // _guestBookMessages = [];
-          for (final document in snapshot.docs) {
+          // for (final document in snapshot.docs) {
             // _guestBookMessages.add(
             //   GuestBookMessage(
             //     name: document.data()['name'] as String,
             //     message: document.data()['text'] as String,
             //   ),
             // );
-          }
+          // }
           notifyListeners();
         });
       } else {

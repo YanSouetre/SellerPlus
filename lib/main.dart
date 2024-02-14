@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'app_state.dart';
+import 'component/login.dart';
 import 'home_page.dart';
+import 'component/register.dart';
 
 
 void main() {
@@ -27,43 +29,13 @@ final _router = GoRouter(
       builder: (context, state) => const HomePage(),
       routes: [
         GoRoute(
-          path: 'sign-in',
-          builder: (context, state) {
-            return SignInScreen(
-              actions: [
-                ForgotPasswordAction(((context, email) {
-                  final uri = Uri(
-                    path: '/sign-in/forgot-password',
-                    queryParameters: <String, String?>{
-                      'email': email,
-                    },
-                  );
-                  context.push(uri.toString());
-                })),
-                AuthStateChangeAction(((context, state) {
-                  final user = switch (state) {
-                  SignedIn state => state.user,
-                  UserCreated state => state.credential.user,
-                  _ => null
-                  };
-                  if (user == null) {
-                  return;
-                  }
-                  if (state is UserCreated) {
-                  user.updateDisplayName(user.email!.split('@')[0]);
-                  }
-                  if (!user.emailVerified) {
-                  user.sendEmailVerification();
-                  const snackBar = SnackBar(
-                  content: Text(
-                  'Please check your email to verify your email address'));
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  }
-                  context.pushReplacement('/');
-                  })),
-              ],
-            );
-          },
+          path: 'login',
+          builder: (context, state) => LoginPage(
+            onSuccess: () {
+              context.pushReplacement('/');
+            },
+          ),
+
           routes: [
             GoRoute(
               path: 'forgot-password',
@@ -76,6 +48,13 @@ final _router = GoRouter(
               },
             ),
           ],
+        ),
+        GoRoute(
+          path: 'register', // Ajoutez la route pour la page d'inscription
+          builder: (context, state) => RegisterPage(
+            onSuccess: () {
+              context.pushReplacement('/');
+            }),
         ),
         GoRoute(
           path: 'profile',
