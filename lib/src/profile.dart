@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sellerplus/component/navbar.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -66,7 +67,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
       //Nombre de clients différents
       if (!clients.contains(data['client'])) {
-        log(data['client']);
         // Ajouter le nom du client à la liste
         nbclient += 1;
         clients.add(data['client']);
@@ -98,92 +98,96 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Profil'),
-      ),
-      body: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Email: ${_user.email}',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Role: $_userRole',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _logout,
-              child: Text('Déconnexion'),
-            ),
-            Wrap(
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 20, // Espacement horizontal entre les éléments
-              runSpacing: 20, // Espace
+      appBar: null,
+
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [const NavBar(),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
+                Text(
+                  'Email: ${_user.email}',
+                  style: TextStyle(fontSize: 18),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Role: $_userRole',
+                  style: TextStyle(fontSize: 18),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _logout,
+                  child: Text('Déconnexion'),
+                ),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 20, // Espacement horizontal entre les éléments
+                  runSpacing: 20, // Espace
                   children: [
-                    Text(
-                      'Nombre de clients différents',
-                      style: TextStyle(fontSize: 18,
-                      fontWeight: FontWeight.bold),
+                    Column(
+                      children: [
+                        Text(
+                          'Nombre de clients différents',
+                          style: TextStyle(fontSize: 18,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '$nbclient',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ],
                     ),
-                    Text(
-                      '$nbclient',
-                      style: TextStyle(fontSize: 18),
+                    Column(
+                      children: [
+                        Text(
+                          'Prix total des ventes',
+                          style: TextStyle(fontSize: 18,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '$price',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ],
                     ),
+                    Column(
+                      children: [
+                        Text(
+                          'Produit le plus vendu',
+                          style: TextStyle(fontSize: 18,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '$mostSoldProduct',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          'Nombre de ventes',
+                          style: TextStyle(fontSize: 18,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '$nbVentes',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ],
+                    )
                   ],
                 ),
-                Column(
-                  children: [
-                    Text(
-                      'Prix total des ventes',
-                      style: TextStyle(fontSize: 18,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '$price',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    Text(
-                      'Produit le plus vendu',
-                      style: TextStyle(fontSize: 18,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '$mostSoldProduct',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    Text(
-                      'Nombre de ventes',
-                      style: TextStyle(fontSize: 18,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '$nbVentes',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ],
-                )
               ],
             ),
-          ],
-        ),
+          ),],
       ),
+
     );
   }
 }
