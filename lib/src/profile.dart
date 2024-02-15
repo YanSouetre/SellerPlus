@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:sellerplus/component/navbar.dart';
+
+import '../app_state.dart';
 
 class ProfilePage extends StatefulWidget {
   String? id;
@@ -18,8 +21,9 @@ class _ProfilePageState extends State<ProfilePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  late User _user;
+  late String _userId;
   late String _userRole = "";
+  late String _userEmail = "";
   List<String> clients = [];
   int nbclient = 0;
   DateTime date = DateTime.now();
@@ -37,41 +41,31 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _initializeUserData() async {
-    User? user = await getUserFromUid(widget.id) as User;
-    log("3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA${user}AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    String user = await getUserFromUid(widget.id);
 
-    if (user != null) {
-      log("4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-
-      setState(() {
-        _user = user;
-      });
-      await _loadUserData();
-      await _fetchSalesData();
+    setState(() {
+      _userId = user;
+    });
+    await _loadUserData();
+    await _fetchSalesData();
     }
-  }
 
   Future<void> _loadUserData() async {
-
-    final DocumentSnapshot userDoc = await _firestore.collection('users').doc(_user.uid).get();
+    final DocumentSnapshot userDoc = await _firestore.collection('users').doc(_userId).get();
     setState(() {
       _userRole = userDoc['role'];
+      _userEmail = userDoc['email'];
     });
   }
 
-  Future<User?> getUserFromUid(String? uid) async {
+  Future<String> getUserFromUid(String? uid) async {
     try {
       // Utilisez la méthode getUser pour récupérer l'utilisateur avec l'UID spécifié
-      User? user = await FirebaseAuth.instance.authStateChanges().firstWhere((user) => user?.uid == uid);
       final DocumentSnapshot userDoc = await _firestore.collection('users').doc(widget.id).get();
-
-      if (user != null) {
-        return user;
-      }
-    } catch (e) {
-      // Gérer les erreurs éventuelles
+      return userDoc.id;
+        } catch (e) {
       print('Erreur lors de la récupération de l\'utilisateur: $e');
-      return null;
+      return "null";
     }
   }
 
@@ -82,7 +76,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _fetchSalesData() async {
-    final QuerySnapshot salesSnapshot = await _firestore.collection('ventes').where('idCommercial', isEqualTo: _user.uid).get();
+    final QuerySnapshot salesSnapshot = await _firestore.collection('ventes').where('idCommercial', isEqualTo: _userId).get();
 
 
     nbVentes = salesSnapshot.size;
@@ -128,7 +122,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: null,
-      body: FutureBuilder<User?>(
+      body: FutureBuilder<String?>(
         future: getUserFromUid(widget.id),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -140,9 +134,9 @@ class _ProfilePageState extends State<ProfilePage> {
               return Center(child: Text('Erreur: ${snapshot.error}'));
             } else {
               // Les données sont disponibles, vous pouvez les utiliser ici
-              User? user = snapshot.data;
-              if (user != null) {
-                _user = user; // Assurez-vous que _user est initialisé avant de l'utiliser
+              String? userId = snapshot.data;
+              if (userId != null) {
+                _userId = userId; // Assurez-vous que _user est initialisé avant de l'utiliser
                 return _buildUserData();
               } else {
                 return Center(child: Text('Utilisateur non trouvé'));
@@ -155,6 +149,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildUserData() {
+    var appState = Provider.of<ApplicationState>(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -165,20 +160,50 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Email: ${_user.email}',
-                style: TextStyle(fontSize: 18),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Role: $_userRole',
-                style: TextStyle(fontSize: 18),
-              ),
+            Row(
+              children: [
+                const CircleAvatar(
+                      radius: 85, // Change this radius for the width of the circular border
+                      backgroundColor: Colors.white,
+                      child: CircleAvatar(
+                        radius: 85, // This radius is the radius of the picture in the circle avatar itself.
+                        backgroundImage: NetworkImage(
+                          'https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                        ),
+                      ),
+                    ),
+                Column(
+                  children: [
+                    Text(
+                      '$_userEmail',
+                      style: TextStyle(fontSize: 25,
+                      fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      '$_userRole',
+                      style: TextStyle(fontSize: 25),
+                    ),
+                    SizedBox(height: 20),
+                    _userId == appState.getUser.uid
+                        ? ElevatedButton.icon(
+                      onPressed: _logout,
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.red), // Définit la couleur de fond du bouton sur rouge
+                      ),
+                      icon: Icon(Icons.logout, color: Colors.white), // Ajoute une icône de déconnexion à gauche du texte
+                      label: Text(
+                        'Déconnexion',
+                        style: TextStyle(color: Colors.white), // Définit la couleur du texte sur blanc
+                      ),
+                    )
+
+                        : SizedBox(),
+                  ],
+                ),
+              ],
+            ),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _logout,
-                child: Text('Déconnexion'),
-              ),
               Wrap(
                 alignment: WrapAlignment.center,
                 crossAxisAlignment: WrapCrossAlignment.center,
