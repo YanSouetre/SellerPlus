@@ -54,7 +54,7 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               InkWell(
                 onTap: () {
-                  context.pushReplacement('/sells');
+                  context.pushReplacement('/sales');
                 },
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),

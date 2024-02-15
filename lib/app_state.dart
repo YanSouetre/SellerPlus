@@ -8,6 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sellerplus/src/sell.dart';
+import 'package:sellerplus/utils/string.dart';
 
 import 'firebase_options.dart';
 
@@ -37,7 +38,13 @@ class ApplicationState extends ChangeNotifier {
   };
   Map<String, dynamic> get getStats => _stats;
 
-  Map<String, String> _userNames = {};
+  Map<String, List<Sells>> _todoSells = {
+    'late': [],
+    'upcoming': [],
+  };
+  Map<String, List<Sells>> get getTodoSells => _todoSells;
+
+  Map<String, Map<String, dynamic>> _userList = {};
 
   Future<void> init() async {
     await Firebase.initializeApp(
@@ -59,10 +66,9 @@ class ApplicationState extends ChangeNotifier {
           .collection('users')
           .snapshots()
           .listen((snapshot) {
-        _userNames = {};
+        _userList = {};
         for (var doc in snapshot.docs) {
-          if (doc.data()['email'] is String)
-            _userNames[doc.id] = doc.data()['email'] as String;
+          if (doc.data()['email'] is String) _userList[doc.id] = doc.data();
         }
       });
 
@@ -71,10 +77,15 @@ class ApplicationState extends ChangeNotifier {
           .orderBy('date', descending: true)
           .snapshots()
           .listen((snapshot) {
+        // Reset stats
         _sells = [];
         _topSellers = [];
         _lastSells = [];
+        _todoSells['late'] = [];
+        _todoSells['upcoming'] = [];
+
         for (final document in snapshot.docs) {
+          const validatedStatus = ['Vendu', 'Livré'];
           // Update stats
           _stats['caTotal'] += document.data()['price'] as int;
           _stats['productSoldTotal'] += 1;
@@ -89,16 +100,16 @@ class ApplicationState extends ChangeNotifier {
           final currentSale = Sells(
             adress: document.data()['adress'] as String,
             city: document.data()['city'] as String,
-            client: document.data()['client'] as String,
+            client: capitalize(document.data()['client'] as String),
             date: date,
             idCommercial: document.data()['idCommercial'] as String,
-            commercialName:
-                _userNames[document.data()['idCommercial'] as String] ??
-                    'Inconnu',
+            commercialName: _userList[document.data()['idCommercial'] as String]
+                    ?["email"] ??
+                'Inconnu',
             idTechnician: document.data()['idTechnician'] as String,
-            technicianName:
-                _userNames[document.data()['idTechnician'] as String] ??
-                    'Inconnu',
+            technicianName: _userList[document.data()['idTechnician'] as String]
+                    ?["email"] ??
+                'Inconnu',
             price: document.data()['price'] as int,
             product: document.data()['product'] as String,
             statut: document.data()['statut'] as String,
@@ -107,10 +118,36 @@ class ApplicationState extends ChangeNotifier {
           // Add sells
           _sells.add(currentSale);
 
+          // Add todo sells
+          if (_loggedIn == true) {
+            var statusToGet = [];
+
+            var role = "";
+            _userList.forEach((key, value) {
+              if (key == user!.uid) {
+                role = value['role'].toString().toLowerCase();
+              }
+            });
+
+            if (role == "commercial") {
+              statusToGet = ['Commandé', 'Vendu'];
+            } else if (role == "technicien") {
+              statusToGet = ['Vendu'];
+            }
+
+            if (statusToGet.contains(currentSale.statut)) {
+              final diff = date.toDate().difference(now);
+              if (diff.inDays < 0) {
+                _todoSells['late']?.add(currentSale);
+              } else {
+                _todoSells['upcoming']?.add(currentSale);
+              }
+            }
+          }
+
           // Add last sells
-          const availableStatus = ['Vendu', 'Livré'];
           if (_lastSells.length < 5 &&
-              availableStatus.contains(currentSale.statut)) {
+              validatedStatus.contains(currentSale.statut)) {
             _lastSells.add(currentSale);
           }
 
@@ -119,7 +156,7 @@ class ApplicationState extends ChangeNotifier {
 
           final idCommercial = document.data()['idCommercial'] as String;
 
-          String userName = _userNames[idCommercial] ?? '';
+          String userName = _userList[idCommercial]?["email"] ?? 'Inconnu';
 
           var index = -1;
 
@@ -142,6 +179,7 @@ class ApplicationState extends ChangeNotifier {
             });
           }
         }
+
         notifyListeners();
       });
 
