@@ -18,7 +18,6 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
     var appState = Provider.of<ApplicationState>(context);
     
     return Container(
@@ -71,7 +70,7 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
               icon: const Icon(Icons.person_pin, color: Colors.white),
               tooltip: 'Go to profile',
               onPressed: () {
-                var param1 = _auth.currentUser?.uid;
+                var param1 = appState.getUser.uid;
                 context.go("/profile?id=$param1");
               },
             )

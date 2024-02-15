@@ -19,6 +19,8 @@ class ApplicationState extends ChangeNotifier {
 
   bool _loggedIn = false;
   bool get loggedIn => _loggedIn;
+  dynamic _userLogged;
+  dynamic get getUser => _userLogged;
 
   StreamSubscription<QuerySnapshot>? _subscription;
   List<Sells> _sells = [];
@@ -57,9 +59,11 @@ class ApplicationState extends ChangeNotifier {
     FirebaseAuth.instance.userChanges().listen((user) async {
       if (user != null) {
         _loggedIn = true;
+        _userLogged = user;
       } else {
         _loggedIn = false;
         _subscription?.cancel();
+        _userLogged = null;
       }
 
       FirebaseFirestore.instance
