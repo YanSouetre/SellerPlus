@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:sellerplus/app_state.dart';
 
 class NavBar extends StatelessWidget implements PreferredSizeWidget {
   final bool? isLogged;
@@ -11,6 +13,8 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    var appState = Provider.of<ApplicationState>(context);
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       color: Theme.of(context).primaryColor,
@@ -32,9 +36,7 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               InkWell(
                 onTap: () {
-                  // Handle 'Dashboard' option
-                  context.pushReplacement('/register');
-                  // Navigate or perform any action here
+                  context.pushReplacement('/');
                 },
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -46,9 +48,7 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               InkWell(
                 onTap: () {
-                  // Handle 'Mes ventes' option
-                  print('Mes ventes tapped');
-                  // Navigate or perform any action here
+                  context.pushReplacement('/sells');
                 },
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -60,14 +60,22 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ],
           ),
-          IconButton(
-            icon: const Icon(Icons.person_pin_sharp, color: Colors.white),
-            tooltip: 'Go to profile',
-            onPressed: () {
-              context.pushReplacement('/profile');
-
-            },
-          ),
+          if (appState.loggedIn)
+            IconButton(
+              icon: const Icon(Icons.person_pin, color: Colors.white),
+              tooltip: 'Go to profile',
+              onPressed: () {
+                context.pushReplacement('/profile');
+              },
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.contactless_outlined, color: Colors.white),
+              tooltip: 'Login',
+              onPressed: () {
+                context.pushReplacement('/login');
+              },
+            ),
         ],
       ),
     );

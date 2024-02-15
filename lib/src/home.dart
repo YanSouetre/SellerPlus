@@ -31,6 +31,7 @@ class _HomePageState extends State<Home> {
               builder: (context, appState, _) => ListView(
                 padding: const EdgeInsets.all(16.0),
                 children: <Widget>[
+                  const SizedBox(height: 20),
                   const Text(
                     'Top 5 Sellers',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -52,9 +53,9 @@ class _HomePageState extends State<Home> {
                       ]);
                     }).toList(),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 50),
                   const Text(
-                    'Dernière ventes',
+                    'Dernières ventes',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const Divider(),
@@ -73,6 +74,34 @@ class _HomePageState extends State<Home> {
                         const DataCell(Icon(Icons.arrow_right)),
                       ]);
                     }).toList(),
+                  ),
+                  const SizedBox(height: 100),
+                  const Text(
+                    'Bilan mensuel',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Chiffre d\'affaire : ${appState.getStats['caMonth']}€',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  Text(
+                    'Nombre de produits vendus : ${appState.getStats['productSoldMonth']}',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Bilan éternel',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Chiffre d\'affaire : ${appState.getStats['caTotal']}€',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  Text(
+                    'Nombre de produits vendus : ${appState.getStats['productSoldTotal']}',
+                    style: const TextStyle(fontSize: 18),
                   ),
                 ],
               ),

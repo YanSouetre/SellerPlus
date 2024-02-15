@@ -8,7 +8,8 @@ class Sells {
       required this.date,
       required this.idCommercial,
       this.commercialName,
-      required this.idTechnician,
+      this.idTechnician,
+      this.technicianName,
       required this.price,
       required this.product,
       required this.statut
@@ -20,7 +21,8 @@ class Sells {
   final Timestamp date;
   final String idCommercial;
   final String? commercialName;
-  final String idTechnician;
+  final String? idTechnician;
+  final String? technicianName;
   final int price;
   final String product;
   final String statut;
