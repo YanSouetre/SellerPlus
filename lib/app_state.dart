@@ -124,7 +124,7 @@ class ApplicationState extends ChangeNotifier {
           var index = -1;
 
           for (var i = 0; i < _topSellers.length; i++) {
-            if (_topSellers[i]['commercialName'] == userName) {
+            if (_topSellers[i]['idCommercial'] == document.data()['idCommercial']) {
               index = i;
               break;
             }
@@ -136,6 +136,7 @@ class ApplicationState extends ChangeNotifier {
           } else {
             _topSellers.add({
               'commercialName': userName,
+              'idCommercial': document.data()['idCommercial'],
               'totalPrice': document.data()['price'],
               'productsNb': 1,
             });

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -8,11 +9,16 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
 
   const NavBar({super.key, this.isLogged});
 
+
+
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
+
+
   @override
   Widget build(BuildContext context) {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
     var appState = Provider.of<ApplicationState>(context);
     
     return Container(
@@ -65,7 +71,8 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
               icon: const Icon(Icons.person_pin, color: Colors.white),
               tooltip: 'Go to profile',
               onPressed: () {
-                context.pushReplacement('/profile');
+                var param1 = _auth.currentUser?.uid;
+                context.go("/profile?id=$param1");
               },
             )
           else

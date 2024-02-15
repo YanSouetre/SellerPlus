@@ -58,8 +58,11 @@ final _router = GoRouter(
         ),
         GoRoute(
           path: 'profile',
+          name: 'profile',
           builder: (context, state) {
-            return ProfilePage();
+            return ProfilePage(
+              id: state.uri.queryParameters['id']
+            );
           },
         ),
       ],

@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:sellerplus/component/navbar.dart';
 
 class ProfilePage extends StatefulWidget {
+  String? id;
+  ProfilePage({super.key, this.id});
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -17,7 +19,6 @@ class _ProfilePageState extends State<ProfilePage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   late User _user;
-  late String _userEmail = "";
   late String _userRole = "";
   List<String> clients = [];
   int nbclient = 0;
@@ -29,21 +30,49 @@ class _ProfilePageState extends State<ProfilePage> {
   int maxCount = 0;
   int nbVentes = 0;
 
-
   @override
   void initState() {
     super.initState();
-    _user = _auth.currentUser!;
-    _fetchSalesData();
-    _loadUserData();
+    _initializeUserData();
+  }
+
+  Future<void> _initializeUserData() async {
+    User? user = await getUserFromUid(widget.id) as User;
+    log("3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA${user}AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+
+    if (user != null) {
+      log("4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+
+      setState(() {
+        _user = user;
+      });
+      await _loadUserData();
+      await _fetchSalesData();
+    }
   }
 
   Future<void> _loadUserData() async {
+
     final DocumentSnapshot userDoc = await _firestore.collection('users').doc(_user.uid).get();
     setState(() {
       _userRole = userDoc['role'];
-      _userEmail = userDoc['email'];
     });
+  }
+
+  Future<User?> getUserFromUid(String? uid) async {
+    try {
+      // Utilisez la méthode getUser pour récupérer l'utilisateur avec l'UID spécifié
+      User? user = await FirebaseAuth.instance.authStateChanges().firstWhere((user) => user?.uid == uid);
+      final DocumentSnapshot userDoc = await _firestore.collection('users').doc(widget.id).get();
+
+      if (user != null) {
+        return user;
+      }
+    } catch (e) {
+      // Gérer les erreurs éventuelles
+      print('Erreur lors de la récupération de l\'utilisateur: $e');
+      return null;
+    }
   }
 
   Future<void> _logout() async {
@@ -99,95 +128,117 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: null,
-
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [const NavBar(),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Email: ${_user.email}',
-                  style: TextStyle(fontSize: 18),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Role: $_userRole',
-                  style: TextStyle(fontSize: 18),
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _logout,
-                  child: Text('Déconnexion'),
-                ),
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 20, // Espacement horizontal entre les éléments
-                  runSpacing: 20, // Espace
-                  children: [
-                    Column(
-                      children: [
-                        Text(
-                          'Nombre de clients différents',
-                          style: TextStyle(fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          '$nbclient',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Text(
-                          'Prix total des ventes',
-                          style: TextStyle(fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          '$price',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Text(
-                          'Produit le plus vendu',
-                          style: TextStyle(fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          '$mostSoldProduct',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Text(
-                          'Nombre de ventes',
-                          style: TextStyle(fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          '$nbVentes',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ],
-            ),
-          ),],
+      body: FutureBuilder<User?>(
+        future: getUserFromUid(widget.id),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Afficher un indicateur de chargement tant que les données ne sont pas disponibles
+            return Center(child: CircularProgressIndicator());
+          } else {
+            if (snapshot.hasError) {
+              // Afficher un message d'erreur s'il y a eu une erreur lors de la récupération des données
+              return Center(child: Text('Erreur: ${snapshot.error}'));
+            } else {
+              // Les données sont disponibles, vous pouvez les utiliser ici
+              User? user = snapshot.data;
+              if (user != null) {
+                _user = user; // Assurez-vous que _user est initialisé avant de l'utiliser
+                return _buildUserData();
+              } else {
+                return Center(child: Text('Utilisateur non trouvé'));
+              }
+            }
+          }
+        },
       ),
+    );
+  }
 
+  Widget _buildUserData() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const NavBar(),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Email: ${_user.email}',
+                style: TextStyle(fontSize: 18),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Role: $_userRole',
+                style: TextStyle(fontSize: 18),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _logout,
+                child: Text('Déconnexion'),
+              ),
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 20, // Espacement horizontal entre les éléments
+                runSpacing: 20, // Espace
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        'Nombre de clients différents',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '$nbclient',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text(
+                        'Prix total des ventes',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '$price',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text(
+                        'Produit le plus vendu',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '$mostSoldProduct',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text(
+                        'Nombre de ventes',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '$nbVentes',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
