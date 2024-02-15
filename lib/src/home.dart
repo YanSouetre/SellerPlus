@@ -77,12 +77,18 @@ class _HomePageState extends State<Home> {
                       DataColumn(label: Text('Prix convenu')),
                       DataColumn(label: Text('Fiche')),
                     ],
-                    rows: appState.getLastSells.map((seller) {
+                    rows: appState.getLastSells.map((sale) {
                       return DataRow(cells: [
-                        DataCell(Text(seller.product)),
-                        DataCell(Text(seller.commercialName!)),
-                        DataCell(Text(seller.price.toString() + '€')),
-                        const DataCell(Icon(Icons.arrow_right)),
+                        DataCell(Text(sale.product)),
+                        DataCell(Text(sale.commercialName!)),
+                        DataCell(Text(sale.price.toString() + '€')),
+                        DataCell(IconButton(
+                          icon: const Icon(Icons.arrow_right),
+                          onPressed: () {
+                            var param1 = sale.id;
+                            context.go("/sale?id=$param1");
+                          },
+                        )),
                       ]);
                     }).toList(),
                   ),

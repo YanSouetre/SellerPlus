@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sellerplus/src/home.dart';
 import 'package:sellerplus/src/profile.dart';
+import 'package:sellerplus/src/sale.dart';
 import 'package:sellerplus/src/sales.dart';
 
 import 'app_state.dart';
@@ -67,7 +68,17 @@ final _router = GoRouter(
           },
         ),
         GoRoute(
+          path: 'sale',
+          name: 'sale',
+          builder: (context, state) {
+            return SalePage(
+              id: state.uri.queryParameters['id']
+            );
+          },
+        ),
+        GoRoute(
           path: 'sales',
+          name: 'sales',
           builder: (context, state) {
             return Sales();
           },

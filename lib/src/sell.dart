@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Sells {
   Sells(
-      {required this.adress,
+      {
+        required this.id,
+        required this.adress,
       required this.city,
       required this.client,
       required this.date,
@@ -15,6 +17,7 @@ class Sells {
       required this.statut
       });
 
+  final String id;
   final String adress;
   final String city;
   final String client;

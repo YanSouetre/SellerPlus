@@ -9,12 +9,8 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
 
   const NavBar({super.key, this.isLogged});
 
-
-
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +66,7 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
               icon: const Icon(Icons.person_pin, color: Colors.white),
               tooltip: 'Go to profile',
               onPressed: () {
-                var param1 = appState.getUser.uid;
+                var param1 = appState.getUser["uid"];
                 context.go("/profile?id=$param1");
               },
             )

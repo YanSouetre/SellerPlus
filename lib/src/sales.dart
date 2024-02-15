@@ -59,7 +59,13 @@ class _SalesState extends State<Sales> {
                                 DataCell(Text(sale.client)),
                                 DataCell(Text("${sale.date.toDate().day.toString().padLeft(2, '0')}/${sale.date.toDate().month.toString().padLeft(2, '0')}/${sale.date.toDate().year} - ${sale.date.toDate().hour.toString().padLeft(2, '0')}h${sale.date.toDate().minute.toString().padLeft(2, '0')}")),
                                 DataCell(Text(sale.statut)),
-                                const DataCell(Icon(Icons.file_copy_outlined)),
+                                DataCell(IconButton(
+                                  icon: const Icon(Icons.file_copy_outlined),
+                                  onPressed: () {
+                                    var param1 = sale.id;
+                                    context.go("/sale?id=$param1");
+                                  },
+                                )),
                               ]);
                             }).toList(),
                           ),
@@ -88,11 +94,10 @@ class _SalesState extends State<Sales> {
                                 DataCell(IconButton(
                                   icon: const Icon(Icons.file_copy_outlined),
                                   onPressed: () {
-                                    var param1 = sale.idCommercial;
+                                    var param1 = sale.id;
                                     context.go("/sale?id=$param1");
                                   },
                                 )),
-                                // const DataCell(Icon(Icons.file_copy_outlined)),
                               ]);
                             }).toList(),
                           ),

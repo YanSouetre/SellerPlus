@@ -1,5 +1,4 @@
 import 'dart:async'; // new
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart'; // new
 import 'package:firebase_auth/firebase_auth.dart'
@@ -59,7 +58,6 @@ class ApplicationState extends ChangeNotifier {
     FirebaseAuth.instance.userChanges().listen((user) async {
       if (user != null) {
         _loggedIn = true;
-        _userLogged = user;
       } else {
         _loggedIn = false;
         _subscription?.cancel();
@@ -74,6 +72,24 @@ class ApplicationState extends ChangeNotifier {
         for (var doc in snapshot.docs) {
           if (doc.data()['email'] is String) _userList[doc.id] = doc.data();
         }
+
+        if (_loggedIn) {
+          _userLogged = {
+            'displayName': user?.displayName,
+            'email': user?.email,
+            'isEmailVerified': user?.emailVerified,
+            'isAnonymous': user?.isAnonymous,
+            'metadata': user?.metadata,
+            'lastSignInTime': user?.metadata.lastSignInTime,
+            'phoneNumber': user?.phoneNumber,
+            'photoURL': user?.photoURL,
+            'providerData': user?.providerData,
+            'refreshToken': user?.refreshToken,
+            'uid': user?.uid,
+            'tenantId': user?.tenantId,
+            'role': _userList[user?.uid]?["role"] ?? 'Inconnu',
+          };
+        }
       });
 
       _subscription = FirebaseFirestore.instance
@@ -87,21 +103,31 @@ class ApplicationState extends ChangeNotifier {
         _lastSells = [];
         _todoSells['late'] = [];
         _todoSells['upcoming'] = [];
+        _stats = {
+          'caTotal': 0,
+          'productSoldTotal': 0,
+          'productSoldMonth': 0,
+          'caMonth': 0,
+        };
 
         for (final document in snapshot.docs) {
           const validatedStatus = ['Vendu', 'Livré'];
-          // Update stats
-          _stats['caTotal'] += document.data()['price'] as int;
-          _stats['productSoldTotal'] += 1;
-
           final date = document.data()['date'] as Timestamp;
           final now = DateTime.now();
-          if (date.toDate().month == now.month) {
-            _stats['productSoldMonth'] += 1;
-            _stats['caMonth'] += document.data()['price'] as int;
+
+          // Update stats
+          if (validatedStatus.contains(document.data()['statut'])) {
+            _stats['caTotal'] += document.data()['price'] as int;
+            _stats['productSoldTotal'] += 1;
+
+            if (date.toDate().month == now.month) {
+              _stats['productSoldMonth'] += 1;
+              _stats['caMonth'] += document.data()['price'] as int;
+            }
           }
 
           final currentSale = Sells(
+            id: document.id,
             adress: document.data()['adress'] as String,
             city: document.data()['city'] as String,
             client: capitalize(document.data()['client'] as String),
@@ -165,7 +191,8 @@ class ApplicationState extends ChangeNotifier {
           var index = -1;
 
           for (var i = 0; i < _topSellers.length; i++) {
-            if (_topSellers[i]['idCommercial'] == document.data()['idCommercial']) {
+            if (_topSellers[i]['idCommercial'] ==
+                document.data()['idCommercial']) {
               index = i;
               break;
             }

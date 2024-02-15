@@ -185,7 +185,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       style: TextStyle(fontSize: 25),
                     ),
                     SizedBox(height: 20),
-                    _userId == appState.getUser.uid
+                    _userId == appState.getUser["uid"]
                         ? ElevatedButton.icon(
                       onPressed: _logout,
                       style: ButtonStyle(
